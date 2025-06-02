@@ -1,5 +1,6 @@
 package game2048;
 
+import javax.swing.*;
 import java.util.Formatter;
 import java.util.Observable;
 
@@ -94,6 +95,41 @@ public class Model extends Observable {
         setChanged();
     }
 
+    public boolean makecol(int col)
+    {
+        int flag = 0;
+        int height = 3;
+        int now_max = height;
+        for(int target = height ; target >= 0; --target){
+            if(board.tile(col, target) != null){
+                board.move(col, now_max, tile(col, target));
+                now_max --;
+                if(target != now_max + 1) flag = 1;
+            }
+        }
+        now_max = height;
+        while(now_max >= 0) {
+            int target = now_max - 1;
+            if(tile(col, target) == null) break;
+            if (tile(col, target).value() == tile(col, now_max).value()) {
+                if (board.move(col, now_max, tile(col, target))) {
+                    score += tile(col, now_max).value();
+                    now_max--;
+                    flag = 1;
+                    //使之无间隔
+                    for (int temp = now_max  - 1; temp >= 0; --temp) {
+                        if(tile(col, temp) != null) board.move(col, temp + 1 , tile(col, temp));
+                    }
+                }
+            }
+            else {
+                now_max--;
+            }
+        }
+
+        if(flag == 1) return true;
+        else return false;
+    }
     /** Tilt the board toward SIDE. Return true iff this changes the board.
      *
      * 1. If two Tile objects are adjacent in the direction of motion and have
@@ -109,7 +145,33 @@ public class Model extends Observable {
     public boolean tilt(Side side) {
         boolean changed;
         changed = false;
-
+        int sizes = this.size();
+        if(side == Side.NORTH){
+            for(int col = 0; col < 4; ++col){
+                if(makecol(col)) changed = true;
+            }
+        }
+        if(side == Side.SOUTH){
+            board.setViewingPerspective(side);
+            for(int col = 0; col < 4; ++col){
+                if(makecol(col)) changed = true;
+            }
+            board.setViewingPerspective(Side.NORTH);
+        }
+        if(side == Side.EAST){
+            board.setViewingPerspective(side);
+            for(int col = 0; col < 4; ++col){
+                if(makecol(col)) changed = true;
+            }
+            board.setViewingPerspective(Side.NORTH);
+        }
+        if(side == Side.WEST){
+            board.setViewingPerspective(side);
+            for(int col = 0; col < 4; ++col){
+                if(makecol(col)) changed = true;
+            }
+            board.setViewingPerspective(Side.NORTH);
+        }
         // TODO: Modify this.board (and perhaps this.score) to account
         // for the tilt to the Side SIDE. If the board changed, set the
         // changed local variable to true.
@@ -138,6 +200,14 @@ public class Model extends Observable {
      * */
     public static boolean emptySpaceExists(Board b) {
         // TODO: Fill in this function.
+        int sizes = b.size();
+        for(int i = 0 ; i < sizes; ++i){
+            for(int j = 0; j < sizes; ++j){
+                if(b.tile(i, j) == null){
+                    return true;
+                }
+            }
+        }
         return false;
     }
 
@@ -148,6 +218,15 @@ public class Model extends Observable {
      */
     public static boolean maxTileExists(Board b) {
         // TODO: Fill in this function.
+        int sizes = b.size();
+        for(int i = 0; i < sizes; ++i){
+            for(int j = 0; j < sizes; ++j){
+                if(b.tile(i, j) != null) {
+                    int val = b.tile(i, j).value();
+                    if (val == MAX_PIECE) return true;
+                }
+            }
+        }
         return false;
     }
 
@@ -159,6 +238,33 @@ public class Model extends Observable {
      */
     public static boolean atLeastOneMoveExists(Board b) {
         // TODO: Fill in this function.
+        int dx[] = new int[4];
+        int dy[] = new int[4];
+        dx[0] = 1;
+        dx[1] = -1;
+        dx[2] = 0;
+        dx[3] = 0;
+        dy[0] = 0;
+        dy[1] = 0;
+        dy[2] = -1;
+        dy[3] = 1;
+        if(emptySpaceExists(b)){
+            return true;
+        }
+        else{
+            int sizes = b.size();
+            for(int i = 0; i < sizes; ++i){
+                for(int j = 0; j < sizes; ++j){
+                    for(int k = 0; k < 4; ++k){
+                        int nx = i + dx[k];
+                        int ny = j +dy[k];
+                        if(nx >= 0 && nx < sizes && ny >= 0 && ny < sizes){
+                            if(b.tile(i, j).value() == b.tile(nx, ny).value()) return true;
+                        }
+                    }
+                }
+            }
+        }
         return false;
     }
 
