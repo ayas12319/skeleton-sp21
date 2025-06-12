@@ -1,6 +1,7 @@
 package capers;
 
 import java.io.File;
+import java.util.Arrays;
 
 import static capers.Utils.*;
 
@@ -42,7 +43,7 @@ public class Main {
         }
 
         CapersRepository.setupPersistence();
-        String text;
+        String text = "";
         switch (args[0]) {
         case "story":
             /* This call has been handled for you. The rest will be similar. */
@@ -53,10 +54,17 @@ public class Main {
         case "dog":
             validateNumArgs("dog", args, 4);
             // TODO: make a dog
+            String name = args[1];
+            String breed = args[2];
+            String age = args[3];
+            int rage = Integer.parseInt(age);
+            CapersRepository.makeDog(name, breed, rage);
             break;
         case "birthday":
             validateNumArgs("birthday", args, 2);
             // TODO: celebrate this dog's birthday
+            String dog_name = args[1];
+            CapersRepository.celebrateBirthday(dog_name);
             break;
         default:
             exitWithError(String.format("Unknown command: %s", args[0]));
